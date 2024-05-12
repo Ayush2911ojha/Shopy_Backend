@@ -17,8 +17,13 @@ exports.createProduct = async (req, res) => {
 //   // sort = {sort:"price",order="desc"}
 //   // pagination = {page:1,per_page=10}
 exports.fetchAllProducts = async (req, res) => {
-  let query = Product.find({ deleted: {$ne:true} });
-  let totalProductsQuery = Product.find({});
+  let condition = {};
+  
+  if (!req.query.admin) {
+  condition.deleted={$ne:true}
+  }
+  let query = Product.find(condition);
+  let totalProductsQuery = Product.find(condition);
 
   if (req.query.category) {
     query = query.find({ category: { $in: req.query.category.split(",") } });
