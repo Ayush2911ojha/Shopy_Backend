@@ -5,7 +5,7 @@ const SECRET_KEY = 'SECRET_KEY'
 const jwt = require('jsonwebtoken');
 exports.createUser = async (req, res) => {
     // this product we have to get from API body
-    const user = new User(req.body);
+    // const user = new User(req.body);
     try {
       const salt = crypto.randomBytes(16);
       crypto.pbkdf2(
@@ -23,9 +23,15 @@ exports.createUser = async (req, res) => {
               res.status(400).json(err);
             } else {
               const token = jwt.sign(sanitizeUser(doc), SECRET_KEY);
-              res.status(201).json(token);
-            }
-          });
+              res
+              .cookie('jwt', token, {
+                expires: new Date(Date.now() + 3600000),
+                httpOnly: true,
+              })
+              .status(201)
+              .json(token);
+          }
+        });
         }
       );
     } catch (err) {
@@ -36,7 +42,13 @@ exports.createUser = async (req, res) => {
 exports.loginUser = async (req, res) => { 
  
      
-    res.json(req.user);
+  res
+  .cookie('jwt', req.user.token, {
+    expires: new Date(Date.now() + 3600000),
+    httpOnly: true,
+  })
+  .status(201)
+  .json(req.user.token);
 };
 
 exports.checkUser = async (req, res) => {
